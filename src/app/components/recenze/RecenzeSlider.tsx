@@ -15,7 +15,7 @@ export default function RecenzeSlider() {
         text: "Google recenze",
         url: "https://www.google.com",
       },
-      authorImage: "/womanReview.png",
+      authorImage: "/userReview.png",
       reviewImage: "/review1.png",
     },
     {
@@ -25,7 +25,7 @@ export default function RecenzeSlider() {
         text: "Google recenze",
         url: "https://www.google.com",
       },
-      authorImage: "/manReview.png",
+      authorImage: "/userReview.png",
       reviewImage: "/review2.png",
     },
     {
@@ -35,7 +35,7 @@ export default function RecenzeSlider() {
         text: "Google recenze",
         url: "https://www.google.com",
       },
-      authorImage: "/womanReview.png",
+      authorImage: "/userReview.png",
       reviewImage: "/review3.png",
     },
     {
@@ -45,7 +45,7 @@ export default function RecenzeSlider() {
         text: "Google recenze",
         url: "https://www.google.com",
       },
-      authorImage: "/manReview.png",
+      authorImage: "/userReview.png",
       reviewImage: "/review4.png",
     },
     {
@@ -55,7 +55,7 @@ export default function RecenzeSlider() {
         text: "Google recenze",
         url: "https://www.google.com",
       },
-      authorImage: "/womanReview.png",
+      authorImage: "/userReview.png",
       reviewImage: "/review5.png",
     },
   ];
