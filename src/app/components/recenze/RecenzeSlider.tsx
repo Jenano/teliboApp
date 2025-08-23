@@ -6,82 +6,93 @@ import {
   ArrowRightCircleIcon,
 } from "@heroicons/react/24/solid";
 
-export default function RecenzeSlider() {
-  const recenzeData = [
+type Review = {
+  id?: string;
+  body: string; // = text recenze
+  author_name: string;
+  source_text?: string | null;
+  source_url?: string | null;
+  author_image_url?: string | null;
+  review_image_url?: string | null;
+};
+
+export default function RecenzeSlider({ reviews }: { reviews?: Review[] }) {
+  // fallback původních dat (ponecháváme tvé texty)
+  const fallbackData: Review[] = [
     {
-      text: "Telibo si naše děti okamžitě oblíbily. Hravou formou se naučily nová slovíčka a baví je to každý den.",
-      authorName: "Jana Horáková",
-      puvodRecenze: {
-        text: "Google recenze",
-        url: "https://www.google.com",
-      },
-      authorImage: "/userReview.png",
-      reviewImage: "/review1.png",
+      body: "Telibo si naše děti okamžitě oblíbily. Hravou formou se naučily nová slovíčka a baví je to každý den.",
+      author_name: "Jana Horáková",
+      source_text: "Google recenze",
+      source_url: "https://www.google.com",
+      author_image_url: "/userReview.png",
+      review_image_url: "/review1.png",
     },
     {
-      text: "Díky Telibu je učení angličtiny konečně zábava. Děti ani nevnímají, že se něco učí – prostě si hrají!",
-      authorName: "Tomáš Koudelka",
-      puvodRecenze: {
-        text: "Google recenze",
-        url: "https://www.google.com",
-      },
-      authorImage: "/userReview.png",
-      reviewImage: "/review2.png",
+      body: "Díky Telibu je učení angličtiny konečně zábava. Děti ani nevnímají, že se něco učí – prostě si hrají!",
+      author_name: "Tomáš Koudelka",
+      source_text: "Google recenze",
+      source_url: "https://www.google.com",
+      author_image_url: "/userReview.png",
+      review_image_url: "/review2.png",
     },
     {
-      text: "Každé ráno se syn ptá, jestli si může zase pustit Telibo. A já mám jistotu, že se u toho něco naučí.",
-      authorName: "Veronika Němcová",
-      puvodRecenze: {
-        text: "Google recenze",
-        url: "https://www.google.com",
-      },
-      authorImage: "/userReview.png",
-      reviewImage: "/review3.png",
+      body: "Každé ráno se syn ptá, jestli si může zase pustit Telibo. A já mám jistotu, že se u toho něco naučí.",
+      author_name: "Veronika Němcová",
+      source_text: "Google recenze",
+      source_url: "https://www.google.com",
+      author_image_url: "/userReview.png",
+      review_image_url: "/review3.png",
     },
     {
-      text: "Neumím dobře anglicky, ale Telibo pomáhá dětem i bez mé asistence. Navíc jsou videa krásně zpracovaná.",
-      authorName: "Martin Doležal",
-      puvodRecenze: {
-        text: "Google recenze",
-        url: "https://www.google.com",
-      },
-      authorImage: "/userReview.png",
-      reviewImage: "/review4.png",
+      body: "Neumím dobře anglicky, ale Telibo pomáhá dětem i bez mé asistence. Navíc jsou videa krásně zpracovaná.",
+      author_name: "Martin Doležal",
+      source_text: "Google recenze",
+      source_url: "https://www.google.com",
+      author_image_url: "/userReview.png",
+      review_image_url: "/review4.png",
     },
     {
-      text: "V rámci školky jsme hledali interaktivní nástroj pro výuku angličtiny – a Telibo nás úplně nadchlo!",
-      authorName: "Eva Soukupová",
-      puvodRecenze: {
-        text: "Google recenze",
-        url: "https://www.google.com",
-      },
-      authorImage: "/userReview.png",
-      reviewImage: "/review5.png",
+      body: "V rámci školky jsme hledali interaktivní nástroj pro výuku angličtiny – a Telibo nás úplně nadchlo!",
+      author_name: "Eva Soukupová",
+      source_text: "Google recenze",
+      source_url: "https://www.google.com",
+      author_image_url: "/userReview.png",
+      review_image_url: "/review5.png",
     },
   ];
+
+  const recenzeData: Review[] =
+    reviews && reviews.length > 0 ? reviews : fallbackData;
 
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) =>
-        prevIndex === recenzeData.length - 1 ? 0 : prevIndex + 1
+      setCurrentIndex((prev) =>
+        prev === recenzeData.length - 1 ? 0 : prev + 1
       );
-    }, 20000); // 20 seconds
-
+    }, 20000);
     return () => clearInterval(interval);
-  }, []);
+  }, [recenzeData.length]);
 
   const handlePrev = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? recenzeData.length - 1 : prevIndex - 1
-    );
+    setCurrentIndex((prev) => (prev === 0 ? recenzeData.length - 1 : prev - 1));
+  };
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev === recenzeData.length - 1 ? 0 : prev + 1));
   };
 
-  const handleNext = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === recenzeData.length - 1 ? 0 : prevIndex + 1
-    );
+  // adaptér: mapuj DB pole -> props JednaRecenze
+  const current = recenzeData[currentIndex];
+  const mapped = {
+    text: current.body,
+    authorName: current.author_name,
+    puvodRecenze: {
+      text: current.source_text ?? "",
+      url: current.source_url ?? "",
+    },
+    authorImage: current.author_image_url ?? "/userReview.png",
+    reviewImage: current.review_image_url ?? "/review1.png",
   };
 
   return (
@@ -97,7 +108,7 @@ export default function RecenzeSlider() {
         <ArrowLeftCircleIcon className="w-12 h-12 text-white hover:text-gray-300" />
       </button>
       <div className="w-full max-w-3xl h-[520px] overflow-hidden px-6 md:px-10 text-center">
-        <Recenze {...recenzeData[currentIndex]} />
+        <Recenze {...mapped} />
       </div>
       <button
         onClick={handleNext}

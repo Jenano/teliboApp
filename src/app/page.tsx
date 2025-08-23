@@ -4,7 +4,8 @@ import Nav from "./components/Navigation";
 import HeroSection from "./components/HeroSection";
 import UkazkaKnihy from "./components/Ukazkaknihy";
 import ZjisteteVice from "./components/zjisteteVice/ZjistetVice";
-import RecenzeSlider from "./components/recenze/RecenzeSlider";
+
+import RecenzeSection from "./components/recenze/RecenzeSection";
 
 export default function Home() {
   return (
@@ -16,7 +17,7 @@ export default function Home() {
         <ProcTelibo />
         <UkazkaKnihy />
         <ZjisteteVice />
-        <RecenzeSlider />
+        <RecenzeSection />
       </div>
     </div>
   );
