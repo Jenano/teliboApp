@@ -3,11 +3,13 @@
 import React, { useState, useEffect } from "react";
 import { PlayCircleIcon } from "@heroicons/react/24/outline";
 import { ChevronRightIcon } from "@heroicons/react/24/outline";
+import * as Dialog from "@radix-ui/react-dialog";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 import CountUp from "react-countup";
 import Link from "next/link";
 
 function ProcTelibo() {
-  const [showVideo, setShowVideo] = useState(false);
+  // showVideo replaced by Radix Dialog; keep isMobile for responsive tweaks
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -129,53 +131,38 @@ function ProcTelibo() {
             >
               Začít číst!
             </Link>
-            <button
-              onClick={() => setShowVideo(true)}
-              className="rounded-full border border-solid flex items-center text-[#2CC4B9] hover:bg-[#2CC4B9] hover:text-white font-semibold hover:underline px-2 py-2"
-            >
-              <PlayCircleIcon className="size-8" />
-              Přehrát Video
-            </button>
+
+            {/* Radix Dialog for video modal */}
+            <Dialog.Root>
+              <Dialog.Trigger asChild>
+                <button className="rounded-full border border-solid flex items-center text-[#2CC4B9] hover:bg-[#2CC4B9] hover:text-white font-semibold hover:underline px-2 py-2">
+                  <PlayCircleIcon className="size-8" />
+                  Přehrát Video
+                </button>
+              </Dialog.Trigger>
+
+              <Dialog.Portal>
+                <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm" />
+
+                <Dialog.Content className="fixed top-1/2 left-1/2 w-full max-w-3xl aspect-video -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-lg focus:outline-none">
+                  <iframe
+                    src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
+                    title="Ukázkové video TeliBo"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="w-full h-full"
+                  />
+
+                  <Dialog.Close
+                    aria-label="Zavřít"
+                    className="absolute top-3 right-3 w-10 h-10 rounded-full bg-black/70 text-white flex items-center justify-center shadow-md hover:bg-black focus:outline-none focus:ring-2 focus:ring-white"
+                  >
+                    <XMarkIcon className="h-6 w-6" />
+                  </Dialog.Close>
+                </Dialog.Content>
+              </Dialog.Portal>
+            </Dialog.Root>
           </div>
-          {showVideo &&
-            (isMobile ? (
-              <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
-                <div className="relative w-full h-full">
-                  <iframe
-                    src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
-                    title="Ukázkové video TeliBo"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="w-full h-full"
-                  />
-                  <button
-                    onClick={() => setShowVideo(false)}
-                    className="absolute top-4 right-4 text-white text-2xl font-bold"
-                  >
-                    ×
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center">
-                <div className="relative bg-white w-full max-w-3xl aspect-video rounded-lg overflow-hidden shadow-lg">
-                  <iframe
-                    src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
-                    title="Ukázkové video TeliBo"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="w-full h-full"
-                  />
-                  <button
-                    onClick={() => setShowVideo(false)}
-                    className="absolute top-2 right-2 z-50 bg-white rounded-full w-8 h-8 flex items-center justify-center text-black text-xl shadow-md hover:bg-gray-200 transition"
-                    aria-label="Zavřít video"
-                  >
-                    ×
-                  </button>
-                </div>
-              </div>
-            ))}
         </div>
       </div>
     </section>

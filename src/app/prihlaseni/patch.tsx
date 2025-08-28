@@ -39,7 +39,7 @@ export default function AuthForm() {
           className={`flex-1 py-3 text-center font-medium transition ${
             mode === "login"
               ? "bg-teal-500 text-white"
-              : "bg-teal-50 text-teal-700 hover:bg-teal-100"
+              : "bg-teal-50 text-teal-900 hover:bg-teal-100"
           }`}
           aria-pressed={mode === "login"}
         >
@@ -51,7 +51,7 @@ export default function AuthForm() {
           className={`flex-1 py-3 text-center font-medium transition ${
             mode === "register"
               ? "bg-teal-500 text-white"
-              : "bg-teal-50 text-teal-700 hover:bg-teal-100"
+              : "bg-teal-50 text-teal-900 hover:bg-teal-100"
           }`}
           aria-pressed={mode === "register"}
         >
@@ -62,14 +62,14 @@ export default function AuthForm() {
       {/* Form */}
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         {/* Email */}
-        <label className="flex flex-col text-sm">
+        <label className="flex flex-col text-sm text-gray-900">
           E‑mail
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="border border-teal-300 rounded-md p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-teal-400"
+            className="border border-teal-300 rounded-md p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-teal-400 text-gray-900 placeholder:text-gray-400"
             placeholder="např. rodic@telibo.cz"
             autoComplete="email"
           />
@@ -77,14 +77,14 @@ export default function AuthForm() {
 
         {/* Passwords */}
         {mode !== "reset" && (
-          <label className="flex flex-col text-sm">
+          <label className="flex flex-col text-sm text-gray-900">
             Heslo
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="border border-teal-300 rounded-md p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-teal-400"
+              className="border border-teal-300 rounded-md p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-teal-400 text-gray-900 placeholder:text-gray-400"
               placeholder="●●●●●●●●"
               autoComplete={
                 mode === "login" ? "current-password" : "new-password"
@@ -94,14 +94,14 @@ export default function AuthForm() {
         )}
 
         {mode === "register" && (
-          <label className="flex flex-col text-sm">
+          <label className="flex flex-col text-sm text-gray-900">
             Potvrzení hesla
             <input
               type="password"
               value={password2}
               onChange={(e) => setPassword2(e.target.value)}
               required
-              className="border border-teal-300 rounded-md p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-teal-400"
+              className="border border-teal-300 rounded-md p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-teal-400 text-gray-900 placeholder:text-gray-400"
               placeholder="●●●●●●●●"
               autoComplete="new-password"
             />
@@ -114,7 +114,7 @@ export default function AuthForm() {
             <button
               type="button"
               onClick={() => setMode("reset")}
-              className="text-sm text-teal-700 hover:underline"
+              className="text-sm text-teal-800 hover:underline"
             >
               Zapomenuté heslo?
             </button>
@@ -143,7 +143,7 @@ export default function AuthForm() {
           <button
             type="button"
             onClick={() => setMode("login")}
-            className="text-sm text-teal-700 hover:underline mx-auto"
+            className="text-sm text-teal-800 hover:underline mx-auto"
           >
             Zpět na přihlášení
           </button>
@@ -152,14 +152,14 @@ export default function AuthForm() {
         {/* Divider */}
         <div className="flex items-center my-1">
           <div className="h-px flex-1 bg-teal-200" />
-          <span className="px-2 text-xs text-teal-700">nebo</span>
+          <span className="px-2 text-xs text-teal-800">nebo</span>
           <div className="h-px flex-1 bg-teal-200" />
         </div>
 
         {/* Social (placeholder) */}
         <button
           type="button"
-          className="border border-teal-300 bg-white hover:bg-teal-50 text-teal-700 py-2 rounded-md font-medium"
+          className="border border-teal-300 bg-white hover:bg-teal-50 text-teal-800 py-2 rounded-md font-medium"
           onClick={() => alert("TODO: přihlášení přes Google")}
         >
           Pokračovat s Google
@@ -167,7 +167,7 @@ export default function AuthForm() {
       </form>
 
       {/* Small helper copy */}
-      <p className="text-[11px] text-teal-800/80 mt-4 text-center">
+      <p className="text-[11px] text-teal-900 mt-4 text-center">
         Registrací souhlasíš s&nbsp;
         <a href="/podminky" className="underline">
           podmínkami používání
