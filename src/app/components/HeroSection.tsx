@@ -25,7 +25,7 @@ function HeroSection() {
 
           {/* Call-to-action button */}
           <Link
-            href="/prihlaseni"
+            href="/prihlaseni?mode=register"
             className="inline-block mt-6 bg-[#fb923c] hover:bg-[#E5A743] text-white font-semibold py-3 px-5 font-['Fredoka'] rounded-full shadow-md transition-colors"
           >
             Začít číst!

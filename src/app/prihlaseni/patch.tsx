@@ -1,11 +1,30 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 
 type Mode = "login" | "register" | "reset";
 
 export default function AuthForm() {
-  const [mode, setMode] = useState<Mode>("login");
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const urlMode = (searchParams.get("mode") ?? "login") as Mode;
+  const [mode, setMode] = useState<Mode>(
+    ["login", "register", "reset"].includes(urlMode) ? urlMode : "login"
+  );
+
+  useEffect(() => {
+    const m = (searchParams.get("mode") ?? "login") as Mode;
+    if (["login", "register", "reset"].includes(m) && m !== mode) setMode(m);
+  }, [searchParams, mode]);
+
+  function goMode(next: Mode) {
+    setMode(next);
+    const params = new URLSearchParams(Array.from(searchParams.entries()));
+    params.set("mode", next);
+    router.replace(`?${params.toString()}`);
+  }
   const [email, setEmail] = useState("");
+  const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
 
@@ -17,11 +36,16 @@ export default function AuthForm() {
       return;
     }
 
+    if (mode === "register" && !fullName.trim()) {
+      alert("Zadejte prosím jméno nebo přezdívku.");
+      return;
+    }
+
     if (mode === "login") {
       console.log("Login submit", { email, password });
       // TODO: supabaseBrowser().auth.signInWithPassword({ email, password })
     } else if (mode === "register") {
-      console.log("Register submit", { email, password });
+      console.log("Register submit", { fullName, email, password });
       // TODO: supabaseBrowser().auth.signUp({ email, password })
     } else if (mode === "reset") {
       console.log("Reset password submit", { email });
@@ -35,7 +59,7 @@ export default function AuthForm() {
       <div className="flex w-full mb-6 rounded-lg overflow-hidden border border-teal-300">
         <button
           type="button"
-          onClick={() => setMode("login")}
+          onClick={() => goMode("login")}
           className={`flex-1 py-3 text-center font-medium transition ${
             mode === "login"
               ? "bg-teal-500 text-white"
@@ -47,7 +71,7 @@ export default function AuthForm() {
         </button>
         <button
           type="button"
-          onClick={() => setMode("register")}
+          onClick={() => goMode("register")}
           className={`flex-1 py-3 text-center font-medium transition ${
             mode === "register"
               ? "bg-teal-500 text-white"
@@ -61,6 +85,22 @@ export default function AuthForm() {
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        {/* Full name -- registration only */}
+        {mode === "register" && (
+          <label className="flex flex-col text-sm text-gray-900">
+            Jméno nebo přezdívka
+            <input
+              type="text"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              required
+              className="border border-teal-300 rounded-md p-2 mt-1 focus:outline-none focus:ring-2 focus:ring-teal-400 text-gray-900 placeholder:text-gray-400"
+              placeholder="Honza"
+              autoComplete="name"
+            />
+          </label>
+        )}
+
         {/* Email */}
         <label className="flex flex-col text-sm text-gray-900">
           E‑mail
@@ -113,7 +153,7 @@ export default function AuthForm() {
           <div className="text-right">
             <button
               type="button"
-              onClick={() => setMode("reset")}
+              onClick={() => goMode("reset")}
               className="text-sm text-teal-800 hover:underline"
             >
               Zapomenuté heslo?
@@ -142,7 +182,7 @@ export default function AuthForm() {
         {mode === "reset" && (
           <button
             type="button"
-            onClick={() => setMode("login")}
+            onClick={() => goMode("login")}
             className="text-sm text-teal-800 hover:underline mx-auto"
           >
             Zpět na přihlášení

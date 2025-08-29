@@ -57,13 +57,13 @@ function Nav() {
           <div className="hidden lg:flex md:items-center md:space-x-4">
             <>
               <Link
-                href="/prihlaseni"
+                href="/prihlaseni?mode=register"
                 className="px-4 py-2 bg-[#fb923c] hover:bg-[#E5A743] text-white rounded-full shadow-md font-['Fredoka'] font-bold hover:shadow-lg"
               >
                 Registrace
               </Link>
               <Link
-                href="/prihlaseni"
+                href="/prihlaseni?mode=login"
                 className="px-4 py-2 border border-gray-300 hover:border-teal-500 text-gray-700 rounded-full font-['Fredoka'] font-bold shadow-md hover:shadow-lg"
               >
                 Přihlášení
@@ -105,13 +105,13 @@ function Nav() {
           </div>
           <div className="px-5 pb-4 flex flex-col space-y-2">
             <Link
-              href="/registrace"
+              href="/prihlaseni?mode=register"
               className="px-4 py-2 bg-[#fb923c] hover:bg-[#E5A743] text-white rounded-full shadow-md font-['Fredoka'] font-bold hover:shadow-lg"
             >
               Registrace
             </Link>
             <Link
-              href="/prihlaseni"
+              href="/prihlaseni?mode=login"
               className="px-4 py-2 border border-gray-300 hover:border-teal-500 text-gray-700 rounded-full font-['Fredoka'] font-bold shadow-md hover:shadow-lg"
             >
               Přihlášení

@@ -126,7 +126,7 @@ function ProcTelibo() {
           {/* CTA Buttons */}
           <div className="flex flex-wrap items-center gap-4 justify-center md:justify-start">
             <Link
-              href="/prihlaseni"
+              href="/prihlaseni?mode=register"
               className="inline-block bg-[#F6B949] hover:bg-[#E5A743] text-white font-semibold px-7 py-3 font-['Fredoka'] rounded-full shadow-md transition-colors"
             >
               Začít číst!
