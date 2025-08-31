@@ -24,6 +24,7 @@ export default function AuthForm() {
     params.set("mode", next);
     router.replace(`?${params.toString()}`);
   }
+  const resetOk = (searchParams.get("reset") ?? "") === "ok";
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
@@ -215,7 +216,7 @@ export default function AuthForm() {
     } else if (mode === "reset") {
       const supabase = supabaseBrowser();
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${location.origin}/auth/callback`,
+        redirectTo: `${location.origin}/auth/callback?next=/reset-hesla`,
       });
       if (!error) {
         setResetSubmitted(true);
@@ -360,7 +361,7 @@ export default function AuthForm() {
                   await supabase.auth.resetPasswordForEmail(
                     resetSubmittedEmail,
                     {
-                      redirectTo: `${location.origin}/auth/callback`,
+                      redirectTo: `${location.origin}/auth/callback?next=/reset-hesla`,
                     }
                   );
                   // optional toast
@@ -648,6 +649,13 @@ export default function AuthForm() {
                 </p>
               )}
             </label>
+          )}
+
+          {/* Optional success banner after reset */}
+          {mode === "login" && resetOk && (
+            <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-md p-2">
+              Heslo bylo změněno. Přihlas se novým heslem.
+            </p>
           )}
 
           {/* Forgot password */}

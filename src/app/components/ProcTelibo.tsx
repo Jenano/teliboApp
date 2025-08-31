@@ -121,6 +121,10 @@ function ProcTelibo() {
               <ChevronRightIcon className="w-5 h-5 text-[#2CC4B9] mr-2" />
               Příběhy s hodnotami, které si děti odnesou do života
             </li>
+            <li className="flex items-center text-gray-700">
+              <ChevronRightIcon className="w-5 h-5 text-[#2CC4B9] mr-2" />
+              Bez poplatků — TeliBo je zdarma pro všechny uživatele
+            </li>
           </ul>
 
           {/* CTA Buttons */}

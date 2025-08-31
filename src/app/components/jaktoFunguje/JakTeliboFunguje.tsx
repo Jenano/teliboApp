@@ -57,9 +57,9 @@ function JakTeliboFunguje() {
             Jak to funguje?
           </h2>
           <p className="text-gray-700 text-lg md:text-xl font-normal font-['Fredoka'] leading-relaxed tracking-normal max-w-2xl mx-auto">
-            Telibo je interaktivní vzdělávací nástroj, který dětem ve věku 6–9
-            let umožňuje zábavné a efektivní rozvíjet angličtinu prostřednictvím
-            čtení, poslechu a herních aktivit.
+            Telibo je interaktivní vzdělávací nástroj, který dětem v mladším
+            školním věku umožňuje zábavně a efektivně rozvíjet angličtinu
+            prostřednictvím čtení, poslechu a herních aktivit.
           </p>
         </div>
       </section>

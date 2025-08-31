@@ -37,6 +37,27 @@ export async function GET(request: Request) {
     }
   } catch (_) {}
 
-  const url = new URL(error ? "/prihlaseni?mode=login" : "/my-books", request.url);
-  return NextResponse.redirect(url);
+  const urlObj = new URL(request.url);
+  const next = urlObj.searchParams.get("next");
+
+  if (!error) {
+    // If next indicates password reset flow, set a short-lived proof cookie and go there
+    if (next === "/reset-hesla") {
+      cookieStore.set({
+        name: "reset-ok",
+        value: "1",
+        httpOnly: true,
+        path: "/",
+        maxAge: 60 * 5, // 5 minutes
+        sameSite: "lax",
+      });
+      return NextResponse.redirect(new URL("/reset-hesla", request.url));
+    }
+
+    // Default success path
+    return NextResponse.redirect(new URL("/my-books", request.url));
+  }
+
+  // On error
+  return NextResponse.redirect(new URL("/prihlaseni?mode=login", request.url));
 }

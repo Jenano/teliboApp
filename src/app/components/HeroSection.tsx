@@ -23,6 +23,10 @@ function HeroSection() {
             S výslovností, klikacími slovíčky a hvězdičkami jako odměna.
           </p>
 
+          <p className="text-lg text-gray-600 mt-2">
+            Celý produkt je pro vás a vaše děti kompletně zdarma.
+          </p>
+
           {/* Call-to-action button */}
           <Link
             href="/prihlaseni?mode=register"
