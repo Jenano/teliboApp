@@ -23,8 +23,13 @@ export async function GET(request: Request) {
     }
   );
 
-  // 1) Exchange the verification code for a session (sets auth cookies)
+  console.log("[auth/callback] request.url =", request.url);
   const { data, error } = await supabase.auth.exchangeCodeForSession(request.url);
+  if (error) {
+    console.error("[auth/callback] exchange error:", { code: (error as any)?.code, message: error?.message });
+  } else {
+    console.log("[auth/callback] exchange OK; user =", data?.session?.user?.id);
+  }
 
   // 2) Touch profile activity (last_seen_at)
   try {
@@ -39,6 +44,7 @@ export async function GET(request: Request) {
 
   const urlObj = new URL(request.url);
   const next = urlObj.searchParams.get("next");
+  console.log("[auth/callback] next =", next);
 
   if (!error) {
     // If next indicates password reset flow, set a short-lived proof cookie and go there
@@ -58,6 +64,8 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL("/my-books", request.url));
   }
 
-  // On error
-  return NextResponse.redirect(new URL("/prihlaseni?mode=login", request.url));
+  // On error (e.g., otp expired) redirect to reset tab with info message
+  return NextResponse.redirect(
+    new URL("/prihlaseni?mode=reset&msg=expired", request.url)
+  );
 }

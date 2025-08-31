@@ -36,6 +36,7 @@ export default function AuthForm() {
   const [authError, setAuthError] = useState<string | null>(null);
   const [emailUnconfirmed, setEmailUnconfirmed] = useState(false);
   const [resendBusy, setResendBusy] = useState(false);
+  const expiredMsg = (searchParams.get("msg") ?? "") === "expired";
   const [signupDuplicate, setSignupDuplicate] = useState(false);
   const [duplicateEmail, setDuplicateEmail] = useState("");
   const [resendBusyDup, setResendBusyDup] = useState(false);
@@ -216,7 +217,7 @@ export default function AuthForm() {
     } else if (mode === "reset") {
       const supabase = supabaseBrowser();
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${location.origin}/auth/callback?next=/reset-hesla`,
+        redirectTo: `${location.origin}/auth/callback-client?next=/reset-hesla`,
       });
       if (!error) {
         setResetSubmitted(true);
@@ -361,7 +362,7 @@ export default function AuthForm() {
                   await supabase.auth.resetPasswordForEmail(
                     resetSubmittedEmail,
                     {
-                      redirectTo: `${location.origin}/auth/callback?next=/reset-hesla`,
+                      redirectTo: `${location.origin}/auth/callback-client?next=/reset-hesla`,
                     }
                   );
                   // optional toast
@@ -671,12 +672,22 @@ export default function AuthForm() {
             </div>
           )}
 
-          {/* Reset note */}
+          {/* Reset note and expired warning */}
           {mode === "reset" && (
-            <p className="text-xs text-teal-800 bg-teal-50 border border-teal-200 rounded-md p-2">
-              Po odeslání Vám pošleme e‑mail s odkazem pro nastavení nového
-              hesla.
-            </p>
+            <>
+              {expiredMsg && (
+                <div className="rounded-md border border-amber-300 bg-amber-50 p-3 text-amber-900 text-sm">
+                  <p className="font-medium mb-1">
+                    Odkaz vypršel nebo je neplatný
+                  </p>
+                  <p className="text-sm">Zadej e‑mail a pošleme ti nový.</p>
+                </div>
+              )}
+              <p className="text-xs text-teal-800 bg-teal-50 border border-teal-200 rounded-md p-2">
+                Po odeslání Vám pošleme e‑mail s odkazem pro nastavení nového
+                hesla.
+              </p>
+            </>
           )}
 
           {/* Inline login warnings/errors */}
