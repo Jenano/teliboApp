@@ -41,6 +41,7 @@ export default function AuthForm() {
   const [duplicateEmail, setDuplicateEmail] = useState("");
   const [resendBusyDup, setResendBusyDup] = useState(false);
 
+  const [resetResendUsed, setResetResendUsed] = useState(false);
   const [errors, setErrors] = useState<{
     fullName?: string;
     email?: string;
@@ -269,9 +270,9 @@ export default function AuthForm() {
             Je to na cestě ✉️
           </h2>
           <p className="text-sm text-teal-900">
-            Poslali jsme Vám potvrzovací e‑mail na{" "}
-            <span className="font-semibold">{submittedEmail}</span>. Otevřete ho
-            a potvrďte registraci. Poté se vrtátíte zpět do aplikace.
+            Poslali jsme Ti potvrzovací e‑mail na{" "}
+            <span className="font-semibold">{submittedEmail}</span>. Otevři ho a
+            potvrď registraci. Poté se vrátíš zpět do aplikace.
           </p>
 
           <div className="flex gap-2">
@@ -353,27 +354,34 @@ export default function AuthForm() {
             >
               Pokračovat na přihlášení
             </button>
-
-            <button
-              type="button"
-              onClick={async () => {
-                const supabase = supabaseBrowser();
-                try {
-                  await supabase.auth.resetPasswordForEmail(
-                    resetSubmittedEmail,
-                    {
-                      redirectTo: `${location.origin}/auth/callback-client?next=/reset-hesla`,
-                    }
-                  );
-                  // optional toast
-                } catch (e) {
-                  console.error(e);
-                }
-              }}
-              className="bg-teal-500 hover:bg-teal-600 text-white py-2 px-3 rounded-md font-medium shadow-md"
-            >
-              Poslat znovu
-            </button>
+            {!resetResendUsed ? (
+              <button
+                type="button"
+                onClick={async () => {
+                  const supabase = supabaseBrowser();
+                  try {
+                    await supabase.auth.resetPasswordForEmail(
+                      resetSubmittedEmail,
+                      {
+                        redirectTo: `${location.origin}/auth/callback-client?next=/reset-hesla`,
+                      }
+                    );
+                  } catch (e) {
+                    console.error(e);
+                  } finally {
+                    // after one attempt, hide the button to prevent further requests
+                    setResetResendUsed(true);
+                  }
+                }}
+                className="bg-teal-500 hover:bg-teal-600 text-white py-2 px-3 rounded-md font-medium shadow-md"
+              >
+                Poslat znovu
+              </button>
+            ) : (
+              <span role="status" className="text-sm text-teal-800">
+                E‑mail byl znovu odeslán. Zkontroluj schránku.
+              </span>
+            )}
           </div>
 
           <ul className="list-disc list-inside text-xs text-teal-900/90">
