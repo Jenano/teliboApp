@@ -2,6 +2,9 @@ import { ReactNode } from "react";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+
+export const dynamic = "force-dynamic";
 
 export default async function AppLayout({ children }: { children: ReactNode }) {
   const cookieStore = await cookies();
@@ -25,7 +28,9 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
 
   const { data } = await supabase.auth.getUser();
   const user = data.user;
-  if (!user) return null;
+  if (!user) {
+    redirect("/prihlaseni");
+  }
 
   return (
     <div className="min-h-screen bg-white">
