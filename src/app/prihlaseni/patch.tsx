@@ -145,7 +145,7 @@ export default function AuthForm() {
       }
 
       // success
-      router.push("/my-books");
+      router.push("/app/moje-knihovna");
     } else if (mode === "register") {
       const supabase = supabaseBrowser();
       // reset duplicate banner before attempt
@@ -201,7 +201,7 @@ export default function AuthForm() {
 
       // If auto-confirm (dev) returns a session immediately, go straight in
       if (data?.session) {
-        router.push("/my-books");
+        router.push("/app/moje-knihovna");
         return;
       }
 

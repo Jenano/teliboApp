@@ -61,7 +61,7 @@ export async function GET(request: Request) {
     }
 
     // Default success path
-    return NextResponse.redirect(new URL("/my-books", request.url));
+    return NextResponse.redirect(new URL("/app/moje-knihovna", request.url));
   }
 
   // On error (e.g., otp expired) redirect to reset tab with info message

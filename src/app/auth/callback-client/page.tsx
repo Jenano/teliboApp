@@ -71,7 +71,7 @@ export default function AuthCallbackClient() {
           user: data?.session?.user?.id,
         });
 
-        const next = search.get("next") || "/my-books";
+        const next = search.get("next") || "/app/moje-knihovna";
         if (!error && data?.session?.user) {
           router.replace(next);
         } else {

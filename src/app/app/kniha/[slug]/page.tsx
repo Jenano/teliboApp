@@ -38,7 +38,11 @@ async function getBook(slug: string) {
   return data as any;
 }
 
-export default async function BookDetailPage({ params }: { params: { slug: string } }) {
+export default async function BookDetailPage({
+  params,
+}: {
+  params: { slug: string };
+}) {
   const book = await getBook(params.slug);
   if (!book) notFound();
 
@@ -51,17 +55,15 @@ export default async function BookDetailPage({ params }: { params: { slug: strin
       redirect(`/prihlaseni?mode=login&from=/app/kniha/${book.slug}`);
     }
 
-    const { error } = await supabase
-      .from("user_books")
-      .upsert(
-        {
-          user_id: auth!.user!.id,
-          book_id: book.id,
-          current_seq: 1,
-          completed: false,
-        },
-        { onConflict: "user_id,book_id" }
-      );
+    const { error } = await supabase.from("user_books").upsert(
+      {
+        user_id: auth!.user!.id,
+        book_id: book.id,
+        current_seq: 1,
+        completed: false,
+      },
+      { onConflict: "user_id,book_id" }
+    );
 
     if (error) {
       redirect("/app/moje-knihovna");
@@ -76,7 +78,11 @@ export default async function BookDetailPage({ params }: { params: { slug: strin
       <div className="bg-white rounded-xl shadow p-3 border border-teal-100">
         <div className="aspect-[3/4] w-full overflow-hidden rounded-lg bg-teal-50 flex items-center justify-center">
           {book.cover_url ? (
-            <img src={book.cover_url} alt={book.title_cs} className="h-full w-full object-cover" />
+            <img
+              src={book.cover_url}
+              alt={book.title_cs}
+              className="h-full w-full object-cover"
+            />
           ) : (
             <span className="text-teal-600 text-sm p-2">Bez obálky</span>
           )}
@@ -84,7 +90,9 @@ export default async function BookDetailPage({ params }: { params: { slug: strin
       </div>
 
       <div className="bg-white rounded-xl shadow p-4 border border-teal-100">
-        <h1 className="text-2xl font-bold font-['Fredoka'] text-black">{book.title_cs}</h1>
+        <h1 className="text-2xl font-bold font-['Fredoka'] text-black">
+          {book.title_cs}
+        </h1>
         <p className="text-sm text-gray-600 italic">{book.title_en}</p>
 
         {(book.age_min || book.age_max) && (
@@ -94,7 +102,9 @@ export default async function BookDetailPage({ params }: { params: { slug: strin
         )}
 
         <div className="mt-4 space-y-2">
-          {book.description_cs && <p className="text-gray-800">{book.description_cs}</p>}
+          {book.description_cs && (
+            <p className="text-gray-800">{book.description_cs}</p>
+          )}
           {book.description_en && (
             <p className="text-gray-500 italic">{book.description_en}</p>
           )}

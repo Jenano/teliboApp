@@ -48,14 +48,19 @@ export default async function LibraryPage() {
 
   return (
     <section>
-      <h1 className="text-2xl font-bold font-['Fredoka'] text-black mb-4">Knihovna</h1>
+      <h1 className="text-2xl font-bold font-['Fredoka'] text-black mb-4">
+        Knihovna
+      </h1>
 
       {books.length === 0 ? (
         <p className="text-gray-600">Zatím žádné knihy.</p>
       ) : (
         <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {books.map((b) => (
-            <li key={b.id} className="bg-white rounded-xl shadow p-3 border border-teal-100">
+            <li
+              key={b.id}
+              className="bg-white rounded-xl shadow p-3 border border-teal-100"
+            >
               <Link href={`/app/kniha/${b.slug}`} className="group block">
                 <div className="aspect-[3/4] w-full overflow-hidden rounded-lg bg-teal-50 flex items-center justify-center">
                   {b.cover_url ? (
@@ -65,11 +70,15 @@ export default async function LibraryPage() {
                       className="h-full w-full object-cover transition-transform group-hover:scale-[1.02]"
                     />
                   ) : (
-                    <span className="text-teal-600 text-sm p-2">Bez obálky</span>
+                    <span className="text-teal-600 text-sm p-2">
+                      Bez obálky
+                    </span>
                   )}
                 </div>
                 <div className="mt-2">
-                  <h3 className="font-semibold text-teal-900 leading-snug">{b.title_cs}</h3>
+                  <h3 className="font-semibold text-teal-900 leading-snug">
+                    {b.title_cs}
+                  </h3>
                   <p className="text-xs text-gray-600 italic">{b.title_en}</p>
                   {(b.age_min || b.age_max) && (
                     <p className="text-xs text-gray-700 mt-1">
