@@ -25,12 +25,13 @@ export async function middleware(req: NextRequest) {
     }
   );
 
-  const { data } = await supabase.auth.getUser();
-  if (!data?.user) {
+  const { data: sessionData } = await supabase.auth.getSession();
+  if (!sessionData?.session) {
     const url = req.nextUrl.clone();
     url.pathname = "/prihlaseni";
     url.searchParams.set("mode", "login");
-    url.searchParams.set("from", req.nextUrl.pathname);
+    const from = req.nextUrl.pathname + (req.nextUrl.search || "");
+    url.searchParams.set("from", from);
     return NextResponse.redirect(url);
   }
 

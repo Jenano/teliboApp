@@ -1,3 +1,5 @@
+"use client";
+
 import { createBrowserClient } from "@supabase/ssr";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -9,9 +11,11 @@ export function supabaseBrowser(): SupabaseClient {
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
+        // Do not persist in localStorage; we'll mirror session to HttpOnly cookies via route handler.
         auth: {
-          persistSession: true,
-          storageKey: "sb-telibo-auth",
+          persistSession: false,
+          autoRefreshToken: false,
+          detectSessionInUrl: true,
         },
       }
     );

@@ -9,6 +9,7 @@ export default function AuthForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const urlMode = (searchParams.get("mode") ?? "login") as Mode;
+  const from = searchParams.get("from") || "/app/moje-knihovna";
   const [mode, setMode] = useState<Mode>(
     ["login", "register", "reset"].includes(urlMode) ? urlMode : "login"
   );
@@ -144,8 +145,23 @@ export default function AuthForm() {
         return;
       }
 
-      // success
-      router.push("/app/moje-knihovna");
+      // success: mirror session to server cookies before redirect
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        await fetch("/auth/callback", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            event: "SIGNED_IN",
+            session: sessionData?.session,
+          }),
+        });
+      } catch (e) {
+        // even if the callback fails, attempt navigation; middleware may still redirect
+        console.error("/auth/callback POST failed", e);
+      }
+
+      router.replace(from);
     } else if (mode === "register") {
       const supabase = supabaseBrowser();
       // reset duplicate banner before attempt
@@ -199,9 +215,22 @@ export default function AuthForm() {
         return;
       }
 
-      // If auto-confirm (dev) returns a session immediately, go straight in
+      // If auto-confirm (dev) returns a session immediately, mirror cookies then go straight in
       if (data?.session) {
-        router.push("/app/moje-knihovna");
+        try {
+          const { data: sessionData } = await supabase.auth.getSession();
+          await fetch("/auth/callback", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              event: "SIGNED_IN",
+              session: sessionData?.session,
+            }),
+          });
+        } catch (e) {
+          console.error("/auth/callback POST failed (signup)", e);
+        }
+        router.replace(from);
         return;
       }
 

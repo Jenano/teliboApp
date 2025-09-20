@@ -1,12 +1,13 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { cookies } from "next/headers";
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { useRouter, useSearchParams } from "next/navigation";
 import Filters from "./Filters";
+import { supabaseBrowser } from "@/lib/supabaseClient";
 
-export const revalidate = 0;
-
-type Row = {
+export type Row = {
   status: "reading" | "finished";
   progress_percent: number | null;
   books: {
@@ -18,62 +19,107 @@ type Row = {
   } | null;
 };
 
-type Props = { searchParams: { status?: "all" | "reading" | "finished" } };
+type DbRowBook = {
+  id: string;
+  slug: string;
+  title: string | null;
+  author: string | null;
+  cover_path: string | null;
+};
 
-export default async function MyLibraryPage({ searchParams }: Props) {
-  const cookieStore = await cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
-        },
-        set(name: string, value: string, options: CookieOptions) {
-          cookieStore.set({ name, value, ...options });
-        },
-        remove(name: string, options: CookieOptions) {
-          cookieStore.set({ name, value: "", ...options });
-        },
-      },
+// Shape that may come back from Supabase when selecting a related table.
+// Sometimes the related object is returned as an array; we normalize it.
+type DbRow = {
+  status: "reading" | "finished";
+  progress_percent: number | null;
+  books: DbRowBook | DbRowBook[] | null;
+};
+
+export default function MyLibraryPage() {
+  const router = useRouter();
+  const sp = useSearchParams();
+  const supabase = useMemo(() => supabaseBrowser(), []);
+
+  const [items, setItems] = useState<Row[] | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const status = (sp.get("status") ?? "all") as "all" | "reading" | "finished";
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function run() {
+      setLoading(true);
+      setError(null);
+
+      // 1) Ensure user is logged in. If not, send to /prihlaseni.
+      const { data: auth } = await supabase.auth.getUser();
+      const user = auth?.user ?? null;
+      if (!user) {
+        router.replace("/prihlaseni?mode=login&next=/app/moje-knihovna");
+        return;
+      }
+
+      // 2) Load user's books (optionally filtered by status)
+      let query = supabase
+        .from("user_books")
+        .select(
+          "status, progress_percent, books:book_id (id, slug, title, author, cover_path)"
+        )
+        .eq("user_id", user.id);
+
+      if (status !== "all") query = query.eq("status", status);
+
+      const { data, error: qError } = await query;
+      if (!isMounted) return;
+
+      if (qError) {
+        setError("Nepodařilo se načíst knihy.");
+        setItems([]);
+      } else {
+        // Normalize potential array/object shape from Supabase relation select.
+        const normalized: Row[] =
+          ((data ?? []) as DbRow[]).map((r) => {
+            const book = Array.isArray(r.books) ? r.books[0] ?? null : r.books;
+            return {
+              status: r.status,
+              progress_percent: r.progress_percent,
+              books: book,
+            };
+          }) ?? [];
+
+        setItems(normalized);
+      }
+      setLoading(false);
     }
-  );
 
-  const { data: auth } = await supabase.auth.getUser();
-  const user = auth.user;
-  if (!user) return null;
+    run();
 
-  const status = (searchParams.status ?? "all") as
-    | "all"
-    | "reading"
-    | "finished";
+    return () => {
+      isMounted = false;
+    };
+  }, [status, router, supabase]);
 
-  let query = supabase
-    .from("user_books")
-    .select(
-      "status, progress_percent, books:book_id (id, slug, title, author, cover_path)"
-    )
-    .eq("user_id", user.id) as any;
-
-  if (status !== "all") query = query.eq("status", status);
-
-  const { data: rows, error } = await query;
-  if (error) {
-    return <p className="text-red-600">Nepodařilo se načíst knihy.</p>;
+  if (loading) {
+    return <div className="p-8 text-center text-gray-600">Načítám knihy…</div>;
   }
 
-  const items = (rows ?? []) as Row[];
+  if (error) {
+    return <p className="text-red-600 p-4">{error}</p>;
+  }
 
-  if (!items || items.length === 0) {
+  const list = items ?? [];
+
+  if (list.length === 0) {
     return (
       <div className="text-center p-8">
-        <p className="mb-4 text-gray-600">No books yet…</p>
+        <p className="mb-4 text-gray-600">Žádné knihy…</p>
         <Link
           href="/app/knihovna"
           className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-md font-medium shadow-md"
         >
-          Browse Library
+          Procházet knihovnu
         </Link>
       </div>
     );
@@ -89,7 +135,7 @@ export default async function MyLibraryPage({ searchParams }: Props) {
       </div>
 
       <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-        {items.map((row, idx) => {
+        {list.map((row, idx) => {
           const b = row.books;
           if (!b) return null;
           const progress = Math.max(
