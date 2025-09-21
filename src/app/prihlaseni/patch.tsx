@@ -247,7 +247,7 @@ export default function AuthForm() {
     } else if (mode === "reset") {
       const supabase = supabaseBrowser();
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${location.origin}/auth/callback-client?next=/reset-hesla`,
+        redirectTo: `${location.origin}/auth/callback?next=/reset-hesla`,
       });
       if (!error) {
         setResetSubmitted(true);
@@ -392,7 +392,7 @@ export default function AuthForm() {
                     await supabase.auth.resetPasswordForEmail(
                       resetSubmittedEmail,
                       {
-                        redirectTo: `${location.origin}/auth/callback-client?next=/reset-hesla`,
+                        redirectTo: `${location.origin}/auth/callback?next=/reset-hesla`,
                       }
                     );
                   } catch (e) {

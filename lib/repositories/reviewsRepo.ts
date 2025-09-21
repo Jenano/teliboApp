@@ -1,4 +1,4 @@
-import { supabaseServer } from '../supabaseServer';
+import { supabaseServerReadOnly } from '../supabaseServer';
 
 export interface Review {
   id: string;
@@ -11,7 +11,7 @@ export interface Review {
 }
 
 export async function listReviews(): Promise<Review[]> {
-  const supabase = await supabaseServer();
+  const supabase = await supabaseServerReadOnly();
   const { data, error } = await supabase
     .from('reviews')
     .select('id, body, author_name, source_text, source_url, author_image_url, review_image_url')

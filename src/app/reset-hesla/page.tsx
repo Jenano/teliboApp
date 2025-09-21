@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabaseBrowser } from "@/lib/supabaseClient";
 
 export default function ResetHeslaPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
+  const searchParams = useSearchParams();
+  const verified = searchParams.get("verified") === "1";
+  const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState<string | null>(null);
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
@@ -20,22 +22,21 @@ export default function ResetHeslaPage() {
 
   useEffect(() => {
     let mounted = true;
+    const supabase = supabaseBrowser();
     (async () => {
-      const supabase = supabaseBrowser();
-      const { data } = await supabase.auth.getUser();
-      if (!mounted) return;
-      const user = data.user;
-      if (!user) {
+      // If user came here without verified=1, send them back to request a new link
+      if (!verified) {
         router.replace("/prihlaseni?mode=reset&msg=expired");
         return;
       }
-      setEmail(user.email ?? null);
-      setLoading(false);
+      const { data } = await supabase.auth.getUser();
+      if (!mounted) return;
+      setEmail(data.user?.email ?? null);
     })();
     return () => {
       mounted = false;
     };
-  }, [router]);
+  }, [router, verified]);
 
   function validate() {
     const errs: { password?: string; password2?: string } = {};
@@ -58,8 +59,7 @@ export default function ResetHeslaPage() {
     try {
       const { error: upErr } = await supabase.auth.updateUser({ password });
       if (upErr) throw upErr;
-      await supabase.auth.signOut();
-      router.replace("/prihlaseni?mode=login&reset=ok");
+      router.replace("/app/moje-knihovna");
     } catch (e: any) {
       setError(e?.message || "Nepodařilo se nastavit nové heslo.");
     }

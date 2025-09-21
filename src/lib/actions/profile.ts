@@ -1,8 +1,8 @@
 "use server";
-import { supabaseServer } from "@/lib/supabaseServer";
+import { supabaseServerReadOnly } from "@/lib/supabaseServer";
 
 export async function ensureProfile() {
-  const supabase = await supabaseServer();
+  const supabase = await supabaseServerReadOnly();
   const {
     data: { user },
   } = await supabase.auth.getUser();
