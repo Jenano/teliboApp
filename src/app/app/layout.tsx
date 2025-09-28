@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { supabaseServerReadOnly } from "@/lib/supabaseServer";
+import "./globals.css";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
