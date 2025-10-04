@@ -1,3 +1,14 @@
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+
+function resolveCoverUrl(input?: string | null): string | null {
+  if (!input) return null;
+  const url = input.trim();
+  if (url.startsWith("http://") || url.startsWith("https://")) return url; // already absolute
+  // If the value already looks like a storage public path, just prefix host
+  if (url.startsWith("/storage")) return `${SUPABASE_URL}${url}`;
+  // Otherwise treat it as a filename inside the `covers` bucket
+  return `${SUPABASE_URL}/storage/v1/object/public/covers/${url}`;
+}
 import Link from "next/link";
 import { supabaseServerReadOnly } from "@/lib/supabaseServer";
 
@@ -47,7 +58,9 @@ export default async function LibraryPage() {
                 <div className="aspect-[3/4] w-full overflow-hidden rounded-lg bg-teal-50 flex items-center justify-center">
                   {b.cover_url ? (
                     <img
-                      src={b.cover_url}
+                      src={
+                        resolveCoverUrl(b.cover_url) ?? "/placeholder-cover.png"
+                      }
                       alt={b.title_cs}
                       className="h-full w-full object-cover transition-transform group-hover:scale-[1.02]"
                     />

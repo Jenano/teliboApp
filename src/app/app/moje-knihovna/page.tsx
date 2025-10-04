@@ -114,7 +114,7 @@ export default function MyLibraryPage() {
   if (list.length === 0) {
     return (
       <div className="text-center p-8">
-        <p className="mb-4 text-gray-600">Žádné knihy…</p>
+        <p className="mb-4 text-gray-600">Zatím nemáte žádné knihy…</p>
         <Link
           href="/app/knihovna"
           className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-md font-medium shadow-md"
