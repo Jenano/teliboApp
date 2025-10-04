@@ -1,43 +1,11 @@
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-
-function resolveCoverUrl(input?: string | null): string | null {
-  if (!input) return null;
-  const url = input.trim();
-  if (url.startsWith("http://") || url.startsWith("https://")) return url; // already absolute
-  // If the value already looks like a storage public path, just prefix host
-  if (url.startsWith("/storage")) return `${SUPABASE_URL}${url}`;
-  // Otherwise treat it as a filename inside the `covers` bucket
-  return `${SUPABASE_URL}/storage/v1/object/public/covers/${url}`;
-}
 import Link from "next/link";
-import { supabaseServerReadOnly } from "@/lib/supabaseServer";
-
-type Book = {
-  id: string;
-  slug: string;
-  title_cs: string;
-  title_en: string;
-  cover_url: string | null;
-  age_min: number | null;
-  age_max: number | null;
-};
+import Image from "next/image";
+import { listPublishedBooks } from "@/lib/repos/books";
 
 export const revalidate = 0;
 
 export default async function LibraryPage() {
-  const supabase = await supabaseServerReadOnly();
-
-  const { data, error } = await supabase
-    .from("books")
-    .select("id, slug, title_cs, title_en, cover_url, age_min, age_max")
-    .eq("is_published", true)
-    .order("title_cs", { ascending: true });
-
-  if (error) {
-    return <p className="text-red-600">Nepodařilo se načíst knihovnu.</p>;
-  }
-
-  const books = (data ?? []) as Book[];
+  const books = await listPublishedBooks();
 
   return (
     <section>
@@ -57,29 +25,33 @@ export default async function LibraryPage() {
               <Link href={`/app/kniha/${b.slug}`} className="group block">
                 <div className="aspect-[3/4] w-full overflow-hidden rounded-lg bg-teal-50 flex items-center justify-center">
                   {b.cover_url ? (
-                    <img
-                      src={
-                        resolveCoverUrl(b.cover_url) ?? "/placeholder-cover.png"
-                      }
+                    <Image
+                      src={b.cover_url ?? "/placeholder-cover.png"}
                       alt={b.title_cs}
-                      className="h-full w-full object-cover transition-transform group-hover:scale-[1.02]"
+                      width={300}
+                      height={400}
+                      className="h-full w-full object-cover transition-transform group-hover:scale-[1.02] rounded-lg"
+                      unoptimized={b.cover_url?.startsWith("http")}
+                      priority={false}
                     />
                   ) : (
-                    <span className="text-teal-600 text-sm p-2">
-                      Bez obálky
-                    </span>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-teal-50 text-teal-700 text-center rounded-lg border border-teal-100">
+                      <Image
+                        src="/placeholder-cover.png"
+                        alt="Chybí obálka"
+                        width={64}
+                        height={64}
+                        className="opacity-70 mb-2"
+                      />
+                      <span className="text-sm font-medium">Chybí obálka</span>
+                    </div>
                   )}
                 </div>
                 <div className="mt-2">
                   <h3 className="font-semibold text-teal-900 leading-snug">
                     {b.title_cs}
                   </h3>
-                  <p className="text-xs text-gray-600 italic">{b.title_en}</p>
-                  {(b.age_min || b.age_max) && (
-                    <p className="text-xs text-gray-700 mt-1">
-                      Věk: {b.age_min ?? "?"}–{b.age_max ?? "?"}
-                    </p>
-                  )}
+                  {/* Removed title_en and age range display as listPublishedBooks only returns id, slug, title_cs, cover_url */}
                 </div>
               </Link>
             </li>

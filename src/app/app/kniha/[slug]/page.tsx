@@ -1,56 +1,30 @@
-import { supabaseServerReadOnly } from "@/lib/supabaseServer";
 import { notFound, redirect } from "next/navigation";
+import Image from "next/image";
+import { getBookBySlug } from "@/lib/repos/books";
+import { supabaseServerReadOnly } from "@/lib/supabaseServer";
 
-async function getClient() {
-  return supabaseServerReadOnly();
-}
-
-async function getBook(slug: string) {
-  const supabase = await getClient();
-  const { data, error } = await supabase
-    .from("books")
-    .select(
-      "id, slug, title_cs, title_en, description_cs, description_en, cover_url, age_min, age_max, pages_count"
-    )
-    .eq("slug", slug)
-    .eq("is_published", true)
-    .maybeSingle();
-
-  if (error) throw error;
-  return data as any;
-}
-
-export default async function BookDetailPage({
-  params,
-}: {
-  params: { slug: string };
-}) {
-  const book = await getBook(params.slug);
+export default async function BookDetailPage({ params }: any) {
+  const book = await getBookBySlug(params.slug).catch(() => null);
   if (!book) notFound();
 
-  async function borrowAction(formData: FormData) {
+  async function borrowAction() {
     "use server";
-    const supabase = await getClient();
+    const sb = await supabaseServerReadOnly();
+    const { data: auth } = await sb.auth.getUser();
 
-    const { data: auth } = await supabase.auth.getUser();
     if (!auth?.user) {
-      redirect(`/prihlaseni?mode=login&from=/app/kniha/${book.slug}`);
+      redirect(`/prihlaseni?mode=login&from=/app/kniha/${book!.slug}`);
     }
 
-    const { error } = await supabase.from("user_books").upsert(
+    await sb.from("user_books").upsert(
       {
         user_id: auth!.user!.id,
-        book_id: book.id,
+        book_id: book!.id,
         current_seq: 1,
         completed: false,
       },
       { onConflict: "user_id,book_id" }
     );
-
-    if (error) {
-      redirect("/app/moje-knihovna");
-      return;
-    }
 
     redirect("/app/moje-knihovna");
   }
@@ -60,13 +34,21 @@ export default async function BookDetailPage({
       <div className="bg-white rounded-xl shadow p-3 border border-teal-100">
         <div className="aspect-[3/4] w-full overflow-hidden rounded-lg bg-teal-50 flex items-center justify-center">
           {book.cover_url ? (
-            <img
-              src={book.cover_url}
-              alt={book.title_cs}
-              className="h-full w-full object-cover"
+            <Image
+              src={book.cover_url ?? "/placeholder-cover.png"}
+              alt={book.title_cs ?? "Bez obálky"}
+              width={280}
+              height={370}
+              className="h-full w-full object-cover rounded-lg"
             />
           ) : (
-            <span className="text-teal-600 text-sm p-2">Bez obálky</span>
+            <Image
+              src="/placeholder-cover.png"
+              alt="Bez obálky"
+              width={280}
+              height={370}
+              className="opacity-50 rounded-lg"
+            />
           )}
         </div>
       </div>
