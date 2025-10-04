@@ -43,6 +43,10 @@ export default function AuthForm() {
   const [resendBusyDup, setResendBusyDup] = useState(false);
 
   const [resetResendUsed, setResetResendUsed] = useState(false);
+  // Controls visibility of the PRIMARY password field (login or registration)
+  const [showPrimaryPassword, setShowPrimaryPassword] = useState(false);
+  // Controls visibility of the CONFIRM password field (registration only)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState<{
     fullName?: string;
     email?: string;
@@ -600,38 +604,72 @@ export default function AuthForm() {
           {mode !== "reset" && (
             <label className="flex flex-col text-sm text-gray-900">
               Heslo
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  if (errors.password) {
+              <div className="relative">
+                <input
+                  type={showPrimaryPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (errors.password) {
+                      const msg = validateField("password");
+                      if (!msg)
+                        setErrors((er) => ({ ...er, password: undefined }));
+                    }
+                  }}
+                  onBlur={() => {
+                    setTouched((t) => ({ ...t, password: true }));
                     const msg = validateField("password");
-                    if (!msg)
-                      setErrors((er) => ({ ...er, password: undefined }));
+                    setErrors((er) => ({ ...er, password: msg }));
+                  }}
+                  ref={passwordRef}
+                  required
+                  aria-invalid={errors.password ? true : undefined}
+                  aria-describedby={
+                    errors.password ? "password-error" : undefined
                   }
-                }}
-                onBlur={() => {
-                  setTouched((t) => ({ ...t, password: true }));
-                  const msg = validateField("password");
-                  setErrors((er) => ({ ...er, password: msg }));
-                }}
-                ref={passwordRef}
-                required
-                aria-invalid={errors.password ? true : undefined}
-                aria-describedby={
-                  errors.password ? "password-error" : undefined
-                }
-                className={`rounded-md p-2 mt-1 focus:outline-none focus:ring-2 text-gray-900 placeholder:text-gray-400 ${
-                  errors.password
-                    ? "border border-red-500 focus:ring-red-400"
-                    : "border border-teal-300 focus:ring-teal-400"
-                }`}
-                placeholder="●●●●●●●●"
-                autoComplete={
-                  mode === "login" ? "current-password" : "new-password"
-                }
-              />
+                  className={`rounded-md p-2 pr-12 mt-1 focus:outline-none focus:ring-2 text-gray-900 placeholder:text-gray-400 ${
+                    errors.password
+                      ? "border border-red-500 focus:ring-red-400"
+                      : "border border-teal-300 focus:ring-teal-400"
+                  }`}
+                  placeholder="●●●●●●●●"
+                  autoComplete={
+                    mode === "login" ? "current-password" : "new-password"
+                  }
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPrimaryPassword((v) => !v)}
+                  aria-label={
+                    showPrimaryPassword ? "Skrýt heslo" : "Zobrazit heslo"
+                  }
+                  aria-pressed={showPrimaryPassword}
+                  className="absolute inset-y-0 right-3 my-auto h-6 w-6 grid place-items-center rounded hover:bg-teal-100 text-teal-700 p-0"
+                  title={showPrimaryPassword ? "Skrýt heslo" : "Zobrazit heslo"}
+                >
+                  {showPrimaryPassword ? (
+                    // Eye-off icon
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="h-5 w-5"
+                    >
+                      <path d="M3.53 2.47a.75.75 0 0 0-1.06 1.06l18 18a.75.75 0 1 0 1.06-1.06l-3.03-3.03a12.3 12.3 0 0 0 3.1-3.92.9.9 0 0 0 0-.82C19.96 7.06 16.2 4.5 12 4.5a9.8 9.8 0 0 0-4.63 1.14L3.53 2.47ZM12 6c3.58 0 7 2.13 9.13 6-1.06 1.96-2.47 3.42-4 4.45l-2.02-2.02a3.75 3.75 0 0 0-4.54-4.54L8.45 8.77C9.52 8.28 10.71 8 12 8Zm-6.3 2.95 2.13 2.13A3.75 3.75 0 0 0 12 15.75c.47 0 .92-.09 1.33-.25l2.08 2.08A9.06 9.06 0 0 1 12 18c-4.2 0-7.96-2.56-10.23-7 .78-1.55 1.82-2.86 2.93-3.95Z" />
+                    </svg>
+                  ) : (
+                    // Eye icon
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="h-5 w-5"
+                    >
+                      <path d="M12 4.5c-4.2 0-7.96 2.56-10.23 7a.9.9 0 0 0 0 .82C4.04 16.94 7.8 19.5 12 19.5s7.96-2.56 10.23-7a.9.9 0 0 0 0-.82C19.96 7.06 16.2 4.5 12 4.5Zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10Zm0-2.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />
+                    </svg>
+                  )}
+                </button>
+              </div>
               {touched.password && errors.password && (
                 <p
                   id="password-error"
@@ -647,36 +685,68 @@ export default function AuthForm() {
           {mode === "register" && (
             <label className="flex flex-col text-sm text-gray-900">
               Potvrzení hesla
-              <input
-                type="password"
-                value={password2}
-                onChange={(e) => {
-                  setPassword2(e.target.value);
-                  if (errors.password2) {
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={password2}
+                  onChange={(e) => {
+                    setPassword2(e.target.value);
+                    if (errors.password2) {
+                      const msg = validateField("password2");
+                      if (!msg)
+                        setErrors((er) => ({ ...er, password2: undefined }));
+                    }
+                  }}
+                  onBlur={() => {
+                    setTouched((t) => ({ ...t, password2: true }));
                     const msg = validateField("password2");
-                    if (!msg)
-                      setErrors((er) => ({ ...er, password2: undefined }));
+                    setErrors((er) => ({ ...er, password2: msg }));
+                  }}
+                  ref={password2Ref}
+                  required
+                  aria-invalid={errors.password2 ? true : undefined}
+                  aria-describedby={
+                    errors.password2 ? "password2-error" : undefined
                   }
-                }}
-                onBlur={() => {
-                  setTouched((t) => ({ ...t, password2: true }));
-                  const msg = validateField("password2");
-                  setErrors((er) => ({ ...er, password2: msg }));
-                }}
-                ref={password2Ref}
-                required
-                aria-invalid={errors.password2 ? true : undefined}
-                aria-describedby={
-                  errors.password2 ? "password2-error" : undefined
-                }
-                className={`rounded-md p-2 mt-1 focus:outline-none focus:ring-2 text-gray-900 placeholder:text-gray-400 ${
-                  errors.password2
-                    ? "border border-red-500 focus:ring-red-400"
-                    : "border border-teal-300 focus:ring-teal-400"
-                }`}
-                placeholder="●●●●●●●●"
-                autoComplete="new-password"
-              />
+                  className={`rounded-md p-2 pr-12 mt-1 focus:outline-none focus:ring-2 text-gray-900 placeholder:text-gray-400 ${
+                    errors.password2
+                      ? "border border-red-500 focus:ring-red-400"
+                      : "border border-teal-300 focus:ring-teal-400"
+                  }`}
+                  placeholder="●●●●●●●●"
+                  autoComplete="new-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword((v) => !v)}
+                  aria-label={
+                    showConfirmPassword ? "Skrýt heslo" : "Zobrazit heslo"
+                  }
+                  aria-pressed={showConfirmPassword}
+                  className="absolute inset-y-0 right-3 my-auto h-6 w-6 grid place-items-center rounded hover:bg-teal-100 text-teal-700 p-0"
+                  title={showConfirmPassword ? "Skrýt heslo" : "Zobrazit heslo"}
+                >
+                  {showConfirmPassword ? (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="h-5 w-5"
+                    >
+                      <path d="M3.53 2.47a.75.75 0 0 0-1.06 1.06l18 18a.75.75 0 1 0 1.06-1.06l-3.03-3.03a12.3 12.3 0 0 0 3.1-3.92.9.9 0 0 0 0-.82C19.96 7.06 16.2 4.5 12 4.5a9.8 9.8 0 0 0-4.63 1.14L3.53 2.47ZM12 6c3.58 0 7 2.13 9.13 6-1.06 1.96-2.47 3.42-4 4.45l-2.02-2.02a3.75 3.75 0 0 0-4.54-4.54L8.45 8.77C9.52 8.28 10.71 8 12 8Zm-6.3 2.95 2.13 2.13A3.75 3.75 0 0 0 12 15.75c.47 0 .92-.09 1.33-.25l2.08 2.08A9.06 9.06 0 0 1 12 18c-4.2 0-7.96-2.56-10.23-7 .78-1.55 1.82-2.86 2.93-3.95Z" />
+                    </svg>
+                  ) : (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="h-5 w-5"
+                    >
+                      <path d="M12 4.5c-4.2 0-7.96 2.56-10.23 7a.9.9 0 0 0 0 .82C4.04 16.94 7.8 19.5 12 19.5s7.96-2.56 10.23-7a.9.9 0 0 0 0-.82C19.96 7.06 16.2 4.5 12 4.5Zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10Zm0-2.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />
+                    </svg>
+                  )}
+                </button>
+              </div>
               {mode === "register" && touched.password2 && errors.password2 && (
                 <p
                   id="password2-error"
