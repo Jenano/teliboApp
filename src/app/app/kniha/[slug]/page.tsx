@@ -3,8 +3,13 @@ import Image from "next/image";
 import { getBookBySlug } from "@/lib/repos/books";
 import { supabaseServerReadOnly } from "@/lib/supabaseServer";
 
-export default async function BookDetailPage({ params }: any) {
-  const book = await getBookBySlug(params.slug).catch(() => null);
+export default async function BookDetailPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params; // Next.js 15: params is async
+  const book = await getBookBySlug(slug).catch(() => null);
   if (!book) notFound();
 
   async function borrowAction() {

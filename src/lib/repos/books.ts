@@ -27,7 +27,21 @@ export const getBookBySlug = cache(async (slug: string) => {
   const { data, error } = await sb
     .from("books")
     .select(
-      "id, slug, title_cs, title_en, description_cs, description_en, cover_url, age_min, age_max, pages_count"
+      `
+      id,
+      slug,
+      title_cs,
+      title_en,
+      description_cs,
+      description_en,
+      cover_url,
+      age_min,
+      age_max,
+      pages_count,
+      audio_minutes,
+      page_count,
+      new_word_count
+      `
     )
     .eq("slug", slug)
     .eq("is_published", true)
@@ -44,7 +58,17 @@ export const listPublishedBooks = cache(async () => {
   const sb = await supabaseServerReadOnly();
   const { data, error } = await sb
     .from("books")
-    .select("id, slug, title_cs, cover_url")
+    .select(
+      `
+      id,
+      slug,
+      title_cs,
+      cover_url,
+      audio_minutes,
+      page_count,
+      new_word_count
+      `
+    )
     .eq("is_published", true)
     .order("published_at", { ascending: false });
 
